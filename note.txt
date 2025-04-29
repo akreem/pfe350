@@ -1,0 +1,7 @@
+
+
+python manage.py runserver /----------------/ run 
+
+
+python manage.py migrate
+python manage.py createsuperuser /------------/add admin 
