@@ -76,7 +76,19 @@ class Order(models.Model):
         return str(self.user)
 
     def total_items(self):
+        # Ensure related details are fetched efficiently if needed elsewhere,
+        # but for summation, direct aggregation might be better if performance is key.
         return sum(detail.quantity for detail in self.order_details.all())
+
+    def get_raw_total(self):
+        """Calculates the sum of totals from all related order details."""
+        return sum(detail.total for detail in self.order_details.all() if detail.total is not None)
+
+    def save(self, *args, **kwargs):
+        """Overrides save. Total calculation moved to view or separate method."""
+        # Total calculation logic removed from here to prevent PK error on initial save.
+        # It should be triggered after OrderDetails are saved.
+        super().save(*args, **kwargs) # Call the "real" save() method.
 
 
 

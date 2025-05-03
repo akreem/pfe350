@@ -1,0 +1,65 @@
+{% extends 'administration/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ form_title }}{% endblock title %}
+
+{% block content %}
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Marketing</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="{% url 'administration:home' %}"><i class="bx bx-home-alt"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'administration:coupons_list' %}">Coupons List</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ form_title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!--end breadcrumb-->
+
+    <div class="row">
+        <div class="col-xl-9 mx-auto">
+            <h6 class="mb-0 text-uppercase">{{ form_title }}</h6>
+            <hr/>
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {{ form.non_field_errors }}
+                        {% for field in form %}
+                            <div class="mb-3 row">
+                                <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+                                <div class="col-sm-9">
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label"></label>
+                            <div class="col-sm-9">
+                                <button type="submit" class="btn btn-primary px-5">{% trans "Save Coupon" %}</button>
+                                <a href="{% url 'administration:coupons_list' %}" class="btn btn-secondary px-5">{% trans "Cancel" %}</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end row-->
+</div>
+{% endblock content %}

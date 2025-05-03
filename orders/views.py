@@ -65,7 +65,8 @@ def remove_from_checkout(request,id):
 def checkout(request):
     cart = Cart.objects.get(user=request.user,status='InProgress')
     cart_detail = CartDetails.objects.filter(cart=cart)
-    delivery_fee = DeliveryFee.objects.last().fee
+    delivery_fee_obj = DeliveryFee.objects.last()
+    delivery_fee = delivery_fee_obj.fee if delivery_fee_obj else 0
     pub_key = settings.STRIPE_API_KEY_PUBLISHABLE
 
     if request.method == 'POST':
@@ -132,7 +133,8 @@ def process_payment(request):
         return JsonResponse({'error': 'No active cart found'}, status=400)
 
     cart_detail = CartDetails.objects.filter(cart=cart)
-    delivery_fee = DeliveryFee.objects.last().fee
+    delivery_fee_obj = DeliveryFee.objects.last()
+    delivery_fee = delivery_fee_obj.fee if delivery_fee_obj else 0
 
     if cart.total_after_coupon:
         total = cart.total_after_coupon + delivery_fee
@@ -160,8 +162,8 @@ def process_payment(request):
     checkout_session = stripe.checkout.Session.create(
         line_items=items,
         mode='payment',
-        success_url="http://127.0.0.1:8000/orders/checkout/payment/success",  # استخدام HTTPS هنا
-        cancel_url="http://127.0.0.1:8000/orders/checkout/payment/failed",  # استخدام HTTPS هنا
+        success_url="http://localhost:8004/orders/checkout/payment/success",  # استخدام HTTPS هنا
+        cancel_url="http://localhost:8004/orders/checkout/payment/failed",  # استخدام HTTPS هنا
     )
 
     return JsonResponse({'session': checkout_session})

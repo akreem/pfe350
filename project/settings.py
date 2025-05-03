@@ -34,7 +34,9 @@ DEBUG = True
 STRIPE_API_KEY_PUBLISHABLE = 'pk_test_51OK8ZPGjAFyOrV1SUjIoHN0kWvZcwtApbfVBHb8DgLIOO2l2FbDabSMFIw3mzDI5S0yCrORWxOjdqV88bh1CVUAQ00uNuoDQGY'
 STRIPE_API_KEY_SECRET = 'sk_test_51OK8ZPGjAFyOrV1SjdsAiKRyqASR0WrdGpeyCXVJU5u0oXgrRZECOISKH7xmAsp6Birc8SmDH3LOFT06rRg3l0lf00KykeswsK'
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://pfe.allianceimmo.tech',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -70,6 +72,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     "bootstrap5",
     'sslserver',
+    'widget_tweaks', # Added for form field rendering tweaks
+    'administration',
 ]
 
 

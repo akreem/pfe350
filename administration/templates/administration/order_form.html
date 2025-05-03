@@ -1,0 +1,348 @@
+{% extends 'administration/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block title %}{{ form_title }}{% endblock title %}
+
+{% block content %}
+<!-- {# Display Django messages #}
+    {% if messages %}
+        <div class="messages mb-3">
+            {% for message in messages %}
+                {# Use appropriate alert classes based on message tags #}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %} -->
+
+<!--breadcrumb-->
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">{% trans "Sales" %}</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item"><a href="{% url 'administration:home' %}"><i class="bx bx-home-alt"></i></a>
+        </li>
+         <li class="breadcrumb-item"><a href="{% url 'administration:orders_list' %}">{% trans "Orders" %}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{{ form_title }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!--end breadcrumb-->
+
+<div class="card">
+  <div class="card-body p-4">
+    <h5 class="card-title">{{ form_title }}</h5>
+    <hr />
+    <div class="form-body mt-4">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {{ formset.management_form }} {# Add formset management form #}
+        {{ formset.non_form_errors }} {# Display formset non-form errors #}
+
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="border border-3 p-4 rounded">
+
+              {# --- Order Header Section --- #}
+              <h6 class="mb-3">{% trans "Order Details" %}</h6>
+              {% if form.instance.pk %}
+                {# UPDATE VIEW - Display read-only info and status field #}
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Order ID" %}</label>
+                    <input type="text" class="form-control" value="#{{ form.instance.pk }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "User" %}</label>
+                    <input type="text" class="form-control" value="{{ form.instance.user.username|default:'N/A' }}" readonly>
+                </div>
+                 <div class="mb-3">
+                    <label class="form-label">{% trans "Order Date" %}</label>
+                    <input type="text" class="form-control" value="{{ form.instance.order_time|date:'Y-m-d H:i' }}" readonly>
+                </div>
+                 <div class="mb-3">
+                    <label class="form-label">{% trans "Order Code" %}</label>
+                    <input type="text" class="form-control" value="{{ form.instance.code }}" readonly>
+                </div>
+                 {% if form.instance.coupon %}
+                 <div class="mb-3">
+                    <label class="form-label">{% trans "Coupon Applied" %}</label>
+                    <input type="text" class="form-control" value="{{ form.instance.coupon.code }}" readonly>
+                </div>
+                 <div class="mb-3">
+                    <label class="form-label">{% trans "Total After Coupon" %}</label>
+                    <input type="text" class="form-control" value="${{ form.instance.total_after_coupon|floatformat:2|default:'N/A' }}" readonly>
+                </div>
+                 {% endif %}
+
+                {# Order Status Field (Only for Update) #}
+                <div class="mb-3">
+                  <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                  {{ form.status }}
+                  {% if form.status.help_text %}<small class="form-text text-muted">{{ form.status.help_text }}</small>{% endif %}
+                  {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# --- Order Items Section (Formset) --- #}
+                <hr class="my-4">
+                <h6 class="mb-3">{% trans "Order Items" %}</h6>
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "Product" %}</th>
+                            <th style="width: 100px;">{% trans "Quantity" %}</th>
+                            <th style="width: 120px;">{% trans "Price (Override)" %}</th>
+                            <th style="width: 120px;">{% trans "Total" %}</th> {# Added Total Header #}
+                            {# Delete column removed as items are read-only in update view #}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail_form in formset %}
+                            {{ detail_form.id }} {# Hidden ID field #}
+                            <tr>
+                                <td>
+                                    {# Render disabled product field #}
+                                    {{ detail_form.product }}
+                                    {% for error in detail_form.product.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </td>
+                                <td>
+                                     {# Render disabled quantity field #}
+                                    {{ detail_form.quantity }}
+                                    {% for error in detail_form.quantity.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </td>
+                                <td>
+                                     {# Render disabled price field #}
+                                    {{ detail_form.price }}
+                                    {% if detail_form.price.help_text %}<small class="form-text text-muted d-block">{{ detail_form.price.help_text }}</small>{% endif %}
+                                    {% for error in detail_form.price.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                               </td>
+                               <td>
+                                   {# Display item total #}
+                                   ${{ detail_form.instance.total|floatformat:2|default:'N/A' }}
+                               </td>
+                                {# Delete column removed #}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {# End Order Items Section #}
+
+
+                <div class="mt-4">
+                    {# Button text remains specific to the main action (Update Status / Create Order) #}
+                    <button type="submit" class="btn btn-primary">{% trans "Update Order" %}</button>
+                    <a href="{% url 'administration:orders_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                </div>
+
+              {% else %}
+                {# CREATE VIEW - Display fields from OrderCreateForm #}
+
+                {# User Field #}
+                <div class="mb-3">
+                  <label for="{{ form.user.id_for_label }}" class="form-label">{{ form.user.label }}</label>
+                  {{ form.user }}
+                  {% if form.user.help_text %}<small class="form-text text-muted">{{ form.user.help_text }}</small>{% endif %}
+                  {% for error in form.user.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# Status Field #}
+                <div class="mb-3">
+                  <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                  {{ form.status }}
+                  {% if form.status.help_text %}<small class="form-text text-muted">{{ form.status.help_text }}</small>{% endif %}
+                  {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                {# Coupon Field #}
+                <div class="mb-3">
+                  <label for="{{ form.coupon.id_for_label }}" class="form-label">{{ form.coupon.label }}</label>
+                  {{ form.coupon }}
+                  {% if form.coupon.help_text %}<small class="form-text text-muted">{{ form.coupon.help_text }}</small>{% endif %}
+                  {% for error in form.coupon.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+
+                 {# --- Order Items Section (Formset) --- #}
+                <hr class="my-4">
+                <h6 class="mb-3">{% trans "Order Items" %}</h6>
+                 <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "Product" %}</th>
+                            <th style="width: 100px;">{% trans "Quantity" %}</th>
+                            <th style="width: 120px;">{% trans "Price (Override)" %}</th>
+                            <th style="width: 120px;">{% trans "Total" %}</th> {# Added Total Header #}
+                            {% if formset.can_delete %}<th style="width: 80px;">{% trans "Delete" %}</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail_form in formset %}
+                            {{ detail_form.id }} {# Hidden ID field #}
+                            <tr>
+                                <td>
+                                    {{ detail_form.product }}
+                                    {% for error in detail_form.product.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </td>
+                                <td>
+                                    {{ detail_form.quantity }}
+                                    {% for error in detail_form.quantity.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </td>
+                                <td>
+                                    {{ detail_form.price }}
+                                     {% if detail_form.price.help_text %}<small class="form-text text-muted d-block">{{ detail_form.price.help_text }}</small>{% endif %}
+                                    {% for error in detail_form.price.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                               </td>
+                               <td>
+                                    
+                                    ${{ detail_form.instance.total|floatformat:2|default:'N/A' }}
+                               </td>
+                                {% if formset.can_delete %}
+                                <td class="text-center align-middle">
+                                     <div class="form-check d-flex justify-content-center">
+                                      {{ detail_form.DELETE|attr:"class:form-check-input" }}
+                                    </div>
+                                    {% for error in detail_form.DELETE.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {# End Order Items Section #}
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">{% trans "Create Order" %}</button>
+                    <a href="{% url 'administration:orders_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                </div>
+              {% endif %}
+
+            </div>
+          </div>
+        </div><!--end row-->
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+// Script placed in the 'scripts' block defined in base.html
+document.addEventListener('DOMContentLoaded', function() {
+    const formsetPrefix = '{{ formset.prefix }}'; // e.g., 'order_details'
+    const priceApiUrlBase = "{% url 'administration:api_get_product_price' product_id=0 %}".replace('/0/', '/'); // Get base URL
+
+    function updateTotal(row) {
+        const quantityInput = row.querySelector(`input[name$="-quantity"]`);
+        const priceInput = row.querySelector(`input[name$="-price"]`);
+        const totalCell = row.querySelector('td:nth-child(4)'); // Assuming Total is the 4th column
+
+        if (quantityInput && priceInput && totalCell) {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const total = quantity * price;
+            totalCell.textContent = `TND${total.toFixed(2)}`;
+        }
+    }
+
+    function fetchPriceAndUpdate(productSelect, priceInput) {
+        const productId = productSelect.value;
+        if (productId) {
+            const apiUrl = `${priceApiUrlBase}${productId}/`;
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.price !== undefined) {
+                        priceInput.value = data.price.toFixed(2); // Set price and format
+                        updateTotal(priceInput.closest('tr')); // Update total after price is set
+                    } else if (data.error) {
+                        console.error("API Error:", data.error);
+                        priceInput.value = ''; // Clear price on error
+                        updateTotal(priceInput.closest('tr'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching product price:', error);
+                    priceInput.value = ''; // Clear price on fetch error
+                    updateTotal(priceInput.closest('tr'));
+                });
+        } else {
+            priceInput.value = ''; // Clear price if no product selected
+            updateTotal(priceInput.closest('tr'));
+        }
+    }
+
+    // --- Event Listeners ---
+    const orderItemsTableBody = document.querySelector('.form-body table tbody');
+
+    if (orderItemsTableBody) {
+        orderItemsTableBody.addEventListener('change', function(event) {
+            // Handle product selection change
+            const target = event.target;
+            const row = target.closest('tr');
+
+            // Product selection changed
+            if (target.matches(`select[name$="-product"]`)) {
+                const priceInput = row.querySelector(`input[name$="-price"]`);
+                if (priceInput) {
+                    fetchPriceAndUpdate(target, priceInput);
+                }
+            }
+        });
+
+        orderItemsTableBody.addEventListener('input', function(event) {
+            // Handle quantity or price input change for real-time total update
+            const target = event.target;
+            const row = target.closest('tr');
+
+            // Quantity or Price input changed
+            if (target.matches(`input[name$="-quantity"]`) || target.matches(`input[name$="-price"]`)) {
+                updateTotal(row);
+            }
+        });
+
+        // Initial calculation for existing rows (on page load)
+        // Note: This might not be strictly necessary if totals are pre-rendered correctly,
+        // but it ensures consistency if price/qty widgets have default values.
+        // We also need to trigger price fetch for initially selected products.
+        orderItemsTableBody.querySelectorAll('tr').forEach(row => {
+            const productSelect = row.querySelector(`select[name$="-product"]`);
+            const priceInput = row.querySelector(`input[name$="-price"]`);
+            const quantityInput = row.querySelector(`input[name$="-quantity"]`);
+
+            // If a product is already selected on load, fetch its price
+            if (productSelect && productSelect.value && priceInput) {
+                 // Only fetch if price field is empty or 0, assuming pre-filled means override
+                 if (!priceInput.value || parseFloat(priceInput.value) === 0) {
+                    fetchPriceAndUpdate(productSelect, priceInput);
+                 } else {
+                     // If price is already set, just calculate total
+                     updateTotal(row);
+                 }
+            } else if (quantityInput && priceInput) {
+                 // If no product selected initially, but qty/price might exist (unlikely scenario)
+                 updateTotal(row);
+            }
+        });
+    }
+
+    // --- Add Row Functionality (if using django-dynamic-formset or similar) ---
+    // If you add rows dynamically, you'll need to re-attach listeners or use event delegation
+    // more robustly. The current delegation on tbody handles static rows and might handle
+    // dynamically added rows depending on how they are inserted. Test this part if applicable.
+
+});
+</script>
+{% endblock scripts %}

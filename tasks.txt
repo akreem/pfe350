@@ -1,0 +1,38 @@
+1- INTERFACE ADMIN
+Profile: je veux supprimer le bouton add profile
+---------------------------////////////////////////////----------------------------
+
+2- je veux annuler l'accés de modifier le details de panier( CART DETAILS)
+l'admin peut juste consulter les details de panier ,ne peut pas les modifier
+---------------------------////////////////////////////----------------------------
+
+3- (très importatnte) User: le boutton ADD USER ne fonction pas, kif admin ya3ml add user , 
+yetsajel(un nouveau user) mais kif nod5l en tant que User(nouveau user eli zedou Admin) bch na3ml authentification matsirech.
+(je veux dire lorsque l'admin ajoute un utilisateur, c'est a dire l'admin crée un user(adress,mtps,username) ,il faut que l'authent s'effectue)
+---------------------------////////////////////////////----------------------------
+
+4- (importatnte) La photo de profil de la page d'authentification de l'admin:(taswira mt3 dessin animé)
+n7ebou nfas5ouha wela nbadlouha bi image o5ra mounesba lel site mte3na
+---------------------------////////////////////////////----------------------------
+
+5- je veux supprimer le boutton ADD ORDER de ORDERS car l'admin n'a pas le droit d'ajouter une commande a quelqu'un , 
+De plus elle ne fonctione pas ( le formulaire ne continet pas un champ d'ajout de produit) 
+il contient seulement le nom de user,code ,status de commande et date livraison. donc ma3andouch 3ale9a bi ADD ORder
+---------------------------////////////////////////////----------------------------
+
+6-je veux supprimer aussi le bouton ADD ORDER DETAILS de ORDER DETAILS
+l'admin doit consulter les detatils de la commande, il ne peut pas ajouter un details ou modifier les details dune commande déjà passée.
+---------------------------////////////////////////////----------------------------
+
+7-Reviews - avis je veux supprimer boutton Add Review et l'acces de modification d'un commentaire 
+(l'admin doit just consulter et supprimer les avis)
+---------------------------////////////////////////////----------------------------
+
+
+  Interface Admin
+  ana fasa5t password rest token, adress mn USERAUTHS
+   fasa5t zeda free offers wi cart wi order wi wishlist (c'est déjà supprimé)
+ 
+
+
+           merci beaucoup

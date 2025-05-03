@@ -1,0 +1,51 @@
+{% extends "administration/base.html" %}
+{% load static %}
+
+{% block title %}{{ form_title|default:"Confirm Deletion" }}{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Administration</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="{% url 'administration:home' %}"><i class="bx bx-home-alt"></i></a></li>
+                    {# Add breadcrumb for the specific list page if needed, e.g., Users List #}
+                    {% if cancel_url %}
+                    <li class="breadcrumb-item"><a href="{{ cancel_url }}">List</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active" aria-current="page">Confirm Delete</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!--end breadcrumb-->
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ form_title|default:"Confirm Deletion" }}</h5>
+            <hr/>
+            <p>Are you sure you want to delete the {{ object_type|default:"item" }} "<strong>{{ object_to_delete }}</strong>"?</p>
+            <p class="text-danger">This action cannot be undone.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-start mt-3">
+                    <button type="submit" class="btn btn-danger me-2">
+                        <i class='bx bx-trash'></i> Confirm Delete
+                    </button>
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="btn btn-secondary">
+                        <i class='bx bx-x'></i> Cancel
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

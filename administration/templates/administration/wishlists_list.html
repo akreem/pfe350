@@ -1,0 +1,56 @@
+{% extends "administration/base.html" %}
+{% load static %}
+
+{% block title %}Wishlists List{% endblock %}
+
+{% block content %}
+    <div class="page-content">
+        <!--breadcrumb-->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+            <div class="breadcrumb-title pe-3">Customers</div>
+            <div class="ps-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 p-0">
+                        <li class="breadcrumb-item"><a href="{% url 'administration:home' %}"><i class="bx bx-home-alt"></i></a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Wishlists List</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <!--end breadcrumb-->
+
+        <h6 class="mb-0 text-uppercase">All Wishlist Items</h6>
+        <hr/>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="wishlistTable" class="table table-striped table-bordered" style="width:100%">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>User</th>
+                                <th>Product</th>
+                                <th>Added At</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in wishlists %}
+                            <tr>
+                                <td>{{ item.user.username|default:"N/A" }}</td>
+                                <td>{{ item.product.name|default:"N/A" }}</td>
+                                <td>{{ item.added_at|date:"Y-m-d H:i" }}</td>
+                                
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No wishlist items found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

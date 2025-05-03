@@ -1,0 +1,108 @@
+{% extends "administration/base.html" %}
+{% load static %}
+
+{% block title %}Users List{% endblock %}
+
+{% block content %}
+
+<div class="page-content">
+    <!--breadcrumb-->
+    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Accounts</div>
+        <div class="ps-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 p-0">
+                    <li class="breadcrumb-item"><a href="{% url 'administration:home' %}"><i
+                                class="bx bx-home-alt"></i></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Users List</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <!--end breadcrumb-->
+
+    
+
+
+
+    <div class="d-flex justify-content-between align-items-center mb-0">
+        <h6 class="mb-0 text-uppercase">All Users</h6>
+        <a href="{% url 'administration:user_create' %}" class="btn btn-primary btn-sm">
+            <i class="bx bx-plus"></i> Create New User
+        </a>
+    </div>
+    <hr />
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="userTable" class="table table-striped table-bordered" style="width:100%">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Is Active</th>
+                            <th>Is Staff</th>
+                            <th>Is Superuser</th>
+                            <th>Date Joined</th>
+                            <th>Actions</th> {# Added Actions column #}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u.username|default:"N/A" }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.first_name|default:"-" }}</td>
+                            <td>{{ u.last_name|default:"-" }}</td>
+                            <td>
+                                {% if u.is_active %}
+                                <i class='bx bx-check-circle text-success'></i> Yes
+                                {% else %}
+                                <i class='bx bx-x-circle text-danger'></i> No
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_staff %}
+                                <i class='bx bx-check-circle text-success'></i> Yes
+                                {% else %}
+                                <i class='bx bx-x-circle text-danger'></i> No
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_superuser %}
+                                <i class='bx bx-check-circle text-success'></i> Yes
+                                {% else %}
+                                <i class='bx bx-x-circle text-danger'></i> No
+                                {% endif %}
+                            </td>
+                            <td>{{ u.date_joined|date:"Y-m-d H:i" }}</td>
+                            <td> {# Actions column content #}
+                                <a href="{% url 'administration:user_update' u.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-edit'></i> Edit
+                                </a>
+                                {# Add delete button, hide if user is deleting themselves #}
+                                {% if request.user != u %}
+                                <a href="{% url 'administration:user_delete' u.id %}"
+                                   class="btn btn-sm btn-outline-danger ms-1">
+                                    <i class='bx bx-trash'></i> Delete
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No users found.</td> {# Updated colspan #}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
