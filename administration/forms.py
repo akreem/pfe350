@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator # Import RegexValidator
 from products.models import Brand ,Product, ProductImage
 from userauths.models import Address, Phone, CreditCard # Import Address, Phone and CreditCard models
 from orders.models import Order,Coupon # Import Order model
+from settings.models import Company, DeliveryFee # Import Company and DeliveryFee models
 import datetime
 
 class BrandForm(forms.ModelForm):
@@ -373,3 +374,51 @@ OrderDetailUpdateInlineFormSet = inlineformset_factory(
     can_delete=False, # Do not allow deleting items via the formset in update view
     fk_name='order' # Specify the foreign key field name
 )
+
+
+class CompanyForm(forms.ModelForm):
+    """
+    Form for updating Company details.
+    """
+    class Meta:
+        model = Company
+        fields = '__all__' # Include all fields from the model
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'logo': forms.ClearableFileInput(attrs={'class': 'form-control mb-2'}),
+            'subtitle': forms.Textarea(attrs={'class': 'form-control mb-2', 'rows': 3}),
+            'facebook_link': forms.URLInput(attrs={'class': 'form-control mb-2'}),
+            'instgram_link': forms.URLInput(attrs={'class': 'form-control mb-2'}), # Corrected typo 'instgram' -> 'instagram' if model is updated
+            'twitter_link': forms.URLInput(attrs={'class': 'form-control mb-2'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control mb-2'}),
+            'address': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'phones': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'android_app': forms.URLInput(attrs={'class': 'form-control mb-2'}),
+            'ios_app': forms.URLInput(attrs={'class': 'form-control mb-2'}),
+            'call_us': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'email_us': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'free_home_delivery': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'instant_return_policy': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'support_system': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'secure_payment_way': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+            'android_ios_app': forms.TextInput(attrs={'class': 'form-control mb-2'}),
+        }
+        labels = {
+            'instgram_link': _('Instagram Link'), # Corrected label typo
+            # Add other labels if needed for clarity
+        }
+
+
+class DeliveryFeeForm(forms.ModelForm):
+    """
+    Form for updating DeliveryFee details.
+    """
+    class Meta:
+        model = DeliveryFee
+        fields = ['fee']
+        widgets = {
+            'fee': forms.NumberInput(attrs={'class': 'form-control mb-2', 'step': '0.01'}),
+        }
+        labels = {
+            'fee': _('Delivery Fee Amount'),
+        }

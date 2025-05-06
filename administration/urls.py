@@ -11,7 +11,8 @@ from .views import (
     carts_list_view, # Added cart list view
     get_product_price_api, review_delete_view,
     coupons_list_view, coupon_create_view, coupon_update_view, coupon_delete_view, # Added coupon CRUD views
-    wishlists_list_view # Added wishlist list view
+    wishlists_list_view, # Added wishlist list view
+    company_details_view, delivery_fee_view # Added settings views
 )
 # Import product CRUD views from the products app
 #from products.views import product_create_view, product_update_view, product_delete_view
@@ -64,4 +65,8 @@ urlpatterns = [
 
     # Wishlist URLs
     path('wishlists/', wishlists_list_view, name='wishlists_list'),
+
+    # Settings URLs
+    path('settings/company/', company_details_view, name='company_details'),
+    path('settings/delivery-fee/', delivery_fee_view, name='delivery_fee'),
 ]

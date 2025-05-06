@@ -107,9 +107,9 @@
 						<div class="menu-title">Settings</div>
 					</a>
 					<ul>
-						<li> <a href="#"><i class="bx bx-right-arrow-alt"></i>Companies</a></li>
-						<li> <a href="#"><i class="bx bx-right-arrow-alt"></i>Delivery fees</a></li>
-						<li> <a href="#"><i class="bx bx-right-arrow-alt"></i>Free offers</a></li>
+						<li> <a href="{% url 'administration:company_details' %}"><i class="bx bx-right-arrow-alt"></i>Company Details</a></li>
+						<li> <a href="{% url 'administration:delivery_fee' %}"><i class="bx bx-right-arrow-alt"></i>Delivery Fee</a></li>
+						<!-- <li> <a href="#"><i class="bx bx-right-arrow-alt"></i>Free offers</a></li> -->
 					</ul>
 				</li>
 
@@ -501,8 +501,8 @@
 		</footer> -->
 	</div>
 	<!--end wrapper-->
-	<!--start switcher-->
-	<div class="switcher-wrapper">
+	<!-- start switcher-->
+	<!-- <div class="switcher-wrapper">
 		<div class="switcher-btn"> <i class='bx bx-cog bx-spin'></i>
 		</div>
 		<div class="switcher-body">
@@ -538,8 +538,8 @@
 				<li id="theme15"></li>
 			  </ul>
 		</div>
-	</div>
-	<!--end switcher-->
+	</div> -->
+	<!--end switcher -->
 	<!-- Bootstrap JS -->
 	<script src="{% static 'js/bootstrap.bundle.min.js' %}" defer></script>
 	<!--plugins-->

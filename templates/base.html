@@ -188,8 +188,8 @@
                         
                         <button class="header-widget header-cart" title="Cartlist">
                             <i class="fas fa-shopping-basket"></i>
-                            <sup>{{cart_detail_data|length}}</sup>
-                            <span>{% translate "total price" %}<small>${{cart_data.cart_total}}</small></span>
+                            <sup id="header-cart-item-count">{{cart_detail_data|length}}</sup>
+                            <span id="header-cart-total">{% translate "total price" %}<small>TND{{cart_data.cart_total}}</small></span>
                         </button>
                     </div>
                 </div>
@@ -315,29 +315,30 @@
             <div class="cart-header">
                 <div class="cart-total">
                     <i class="fas fa-shopping-basket"></i>
-                    <span>{% translate "total item" %} ({{cart_detail_data|length}})</span>
+                    <span id="sidebar-cart-item-count">{% translate "total item" %} ({{cart_detail_data|length}})</span>
                 </div>
                 <button class="cart-close"><i class="icofont-close"></i></button>
             </div>
             <ul class="cart-list">
                 {% for item in cart_detail_data %}
-                    <li class="cart-item">
+                    <li class="cart-item" data-item-id="{{ item.id }}"> {# Added data-item-id #}
                         <div class="cart-media">
                             <a href="{% url 'products:product_detail' item.product.slug %}"><img src="{{item.product.image.url}}" alt="product"></a>
-                            
-                            
+
+
                         </div>
                         <div class="cart-info-group">
                             <div class="cart-info">
                                 <h6><a href="{% url 'products:product_detail' item.product.slug %}">{{item.product}}</a></h6>
-                                <p>Unit Price - ${{item.product.price}}</p>
+                                <p>Unit Price - TND{{item.product.price}}</p>
                             </div>
                             <div class="cart-action-group">
                                 <div class="product-action">
-                                    <input class="action-input" title="Quantity Number" type="text" name="quantity" value="{{item.quantity}}">
+                                    {# Added class 'cart-item-quantity-input' #}
+                                    <input class="action-input cart-item-quantity-input" title="Quantity Number" type="number" name="quantity" value="{{item.quantity}}" min="1">
                                     {% comment %} <a href="{% url 'orders:remove_from_cart' item.id %}" class="action-input"><i class="far fa-trash-alt"></i></a> {% endcomment %}
 
-                                    <a href="{% url 'orders:remove_from_cart' item.id %}" 
+                                    <a href="{% url 'orders:remove_from_cart' item.id %}"
                                         style="display: inline-block; padding: 3px 12px; background-color: #dc3545; color: white; border-radius: 6px; text-decoration: none; transition: background 0.3s;"
                                         onmouseover="this.style.backgroundColor='#c82333'"
                                         onmouseout="this.style.backgroundColor='#dc3545'">
@@ -345,7 +346,8 @@
                                     </a>
 
                                 </div>
-                                <h6>${{item.total}}</h6>
+                                {# Added class 'cart-item-total' #}
+                                <h6 class="cart-item-total">TND{{item.total}}</h6>
                             </div>
                         </div>
                     </li>
@@ -354,7 +356,8 @@
             <div class="cart-footer">
                 <a class="cart-checkout-btn" href="{% url 'orders:checkout' %}">
                     <span class="checkout-label">{% translate "Proceed to Checkout" %}</span>
-                    <span class="checkout-price">${{cart_data.cart_total}}</span>
+                    {# Added ID 'sidebar-cart-checkout-price' #}
+                    <span class="checkout-price" id="sidebar-cart-checkout-price">TND{{cart_data.cart_total}}</span>
                 </a>
             </div>
         </aside>
@@ -678,6 +681,109 @@
         <!--=====================================
                     JS LINK PART END
         =======================================-->
+{% block scripts %}
+        {# Ensure jQuery is loaded before this script block if not already included above #}
+        {# If the vendor scripts below are already included elsewhere (e.g., higher up), remove duplicates #}
+
+        <!-- VENDOR (Ensure these are loaded, especially jQuery) -->
+        <script src="{% static 'en/vendor/bootstrap/jquery-1.12.4.min.js' %}"></script>
+        <script src="{% static 'en/vendor/bootstrap/popper.min.js' %}"></script>
+        <script src="{% static 'en/vendor/bootstrap/bootstrap.min.js' %}"></script>
+        {# Add other necessary vendor scripts if not loaded above #}
+        <!-- <script src="{% static 'en/vendor/countdown/countdown.min.js' %}"></script> -->
+        <!-- <script src="{% static 'en/vendor/niceselect/nice-select.min.js' %}"></script> -->
+        <!-- <script src="{% static 'en/vendor/slickslider/slick.min.js' %}"></script> -->
+        <!-- <script src="{% static 'en/vendor/venobox/venobox.min.js' %}"></script> -->
+
+        <!-- CUSTOM (Ensure these are loaded) -->
+        <!-- <script src="{% static 'en/js/nice-select.js' %}"></script> -->
+        <!-- <script src="{% static 'en/js/countdown.js' %}"></script> -->
+        <!-- <script src="{% static 'en/js/accordion.js' %}"></script> -->
+        <!-- <script src="{% static 'en/js/venobox.js' %}"></script> -->
+        <!-- <script src="{% static 'en/js/slick.js' %}"></script> -->
+        <!-- <script src="{% static 'en/js/main.js' %}"></script> -->
+
+        <script>
+            $(document).ready(function() {
+                // --- Cart Quantity Update ---
+                // Use event delegation on a static parent element like '.cart-list'
+                $('.cart-list').on('change', '.cart-item-quantity-input', function() {
+                    let inputField = $(this);
+                    // Store original value in case of error
+                    let originalQuantity = inputField.data('original-quantity');
+                    if (originalQuantity === undefined) {
+                         originalQuantity = inputField.val(); // Store initial value on first change
+                         inputField.data('original-quantity', originalQuantity);
+                    }
+
+                    let quantity = inputField.val();
+                    let cartItem = inputField.closest('.cart-item');
+                    let itemId = cartItem.data('item-id');
+                    let itemTotalElement = cartItem.find('.cart-item-total');
+
+                    // Basic validation
+                    if (quantity < 1) {
+                        alert("Quantity must be at least 1.");
+                        inputField.val(originalQuantity); // Revert to original value
+                        return; // Stop processing
+                    }
+
+                    $.ajax({
+                        url: "{% url 'orders:update_cart_item_quantity' %}",
+                        method: "POST",
+                        data: {
+                            'item_id': itemId,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}' // Ensure CSRF token is available
+                        },
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest' // Important for Django request.headers.get
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                // Update individual item total in sidebar
+                                itemTotalElement.text('TND' + response.new_item_total.toFixed(2));
+
+                                // Update sidebar total items count
+                                $('#sidebar-cart-item-count').text(`{% translate "total item" %} (${response.new_item_count})`);
+
+                                // Update sidebar checkout button total (using subtotal after coupon)
+                                $('#sidebar-cart-checkout-price').text('TND' + response.new_cart_subtotal.toFixed(2));
+
+                                // Update header cart item count
+                                $('#header-cart-item-count').text(response.new_item_count);
+
+                                // Update header cart total price (using subtotal after coupon)
+                                $('#header-cart-total').html(`{% translate "total price" %}<small>TND${response.new_cart_subtotal.toFixed(2)}</small>`);
+
+                                // Update original quantity data attribute for next potential error
+                                inputField.data('original-quantity', quantity);
+
+                                // Optionally display a success message or visual feedback
+                            } else {
+                                // Handle errors reported by the server
+                                alert('Error updating cart: ' + response.error);
+                                inputField.val(originalQuantity); // Revert to original value on error
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Handle AJAX errors
+                            console.error("AJAX Error:", status, error, xhr.responseText);
+                            alert('An error occurred while updating the cart. Please try again.');
+                            inputField.val(originalQuantity); // Revert to original value on error
+                        }
+                    });
+                });
+
+                // Store initial quantity on page load for error recovery
+                $('.cart-item-quantity-input').each(function() {
+                    $(this).data('original-quantity', $(this).val());
+                });
+            });
+        </script>
+
+    {% endblock scripts %}
     </body>
 </html>
 

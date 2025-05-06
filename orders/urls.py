@@ -1,6 +1,10 @@
 from django.urls import path
 
-from .views import OrderListView, checkout , add_to_cart , remove_from_cart , remove_from_checkout , process_payment , payment_success , payment_failed , coupon , wishlist_view , remove_from_wishlist , add_to_wishlist
+from .views import (
+    OrderListView, checkout, add_to_cart, remove_from_cart, remove_from_checkout,
+    process_payment, payment_success, payment_failed, coupon, wishlist_view,
+    remove_from_wishlist, add_to_wishlist, update_cart_item_quantity # Added new view
+)
 from .api import CartDetailCreateAPI , OrderListAPI , OrderDetailsAPI , CreateOrderAPI , ApplyCouponAPI
 
 
@@ -20,6 +24,7 @@ urlpatterns = [
     path('wishlist/', wishlist_view, name='wishlist'),
     path('wishlist/remove/<int:pk>/', remove_from_wishlist, name='remove_from_wishlist'),
     path('wishlist/add/<int:product_id>/', add_to_wishlist, name='add_to_wishlist'),
+    path('cart/update-quantity/', update_cart_item_quantity, name='update_cart_item_quantity'), # Added URL for AJAX update
 
     # api
     path('api/list/<str:username>' ,OrderListAPI.as_view(), name='OrderListAPI'),

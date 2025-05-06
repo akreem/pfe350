@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from userauths.models import User, Profile, Address, Phone, CreditCard # Added CreditCard import
-from settings.models import Company
+from settings.models import Company, DeliveryFee # Import DeliveryFee as well
 from products.models import Product, ProductImage, Brand, Review
 from orders.models import Order, Cart, Coupon, Wishlist # Import Order, Cart, Coupon, Wishlist models
-from .forms import ProductForm, OrderForm, OrderCreateForm, OrderDetailCreateInlineFormSet, OrderDetailUpdateInlineFormSet # Import relevant forms and the two specific formsets
+from .forms import ProductForm, OrderForm, OrderCreateForm, OrderDetailCreateInlineFormSet, OrderDetailUpdateInlineFormSet, CompanyForm, DeliveryFeeForm # Import CompanyForm and DeliveryFeeForm
 # Create your views here.
 from django.db import transaction # Import transaction
 from django.contrib.auth.decorators import login_required, user_passes_test # Import decorators
@@ -203,6 +203,8 @@ def phone_create_view(request):
         'user': request.user,
         'company': get_company_data()
     }
+    # We'll need a template named 'phone_form.html'
+    return render(request, 'administration/phone_form.html', context)
 # View for Creating a Credit Card
 @login_required
 @user_passes_test(is_staff_user)
@@ -234,8 +236,6 @@ def credit_card_create_view(request):
     }
     # We'll need a template named 'credit_card_form.html'
     return render(request, 'administration/credit_card_form.html', context)
-    # We'll need a template named 'phone_form.html'
-    return render(request, 'administration/phone_form.html', context)
 
 # View for Users List
 def users_list_view(request):
@@ -1079,3 +1079,75 @@ def wishlists_list_view(request):
         'company': get_company_data()
     }
     return render(request, 'administration/wishlists_list.html', context)
+
+
+# --- Settings Management Views ---
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser) # Only superusers can edit company details
+def company_details_view(request):
+    """
+    View to display and update the Company details.
+    Assumes a single Company instance exists or handles creation if needed.
+    """
+    # Try to get the first Company instance, or create one if none exist
+    company, created = Company.objects.get_or_create(
+        pk=1, # Assuming pk=1 or use defaults if creating
+        defaults={'name': 'Default Company Name'} # Provide sensible defaults
+    )
+
+    if request.method == 'POST':
+        form = CompanyForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Company details updated successfully!')
+            # Redirect back to the same page to show updated details
+            return redirect('administration:company_details')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CompanyForm(instance=company)
+
+    context = {
+        'form': form,
+        'form_title': 'Update Company Details',
+        'company_instance': company, # Pass the instance for display if needed
+        'user': request.user,
+        'company': company # Pass company data for base template context
+    }
+    return render(request, 'administration/company_form.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser) # Only superusers can edit delivery fee
+def delivery_fee_view(request):
+    """
+    View to display and update the Delivery Fee.
+    Assumes a single DeliveryFee instance exists or handles creation.
+    """
+    # Try to get the first DeliveryFee instance, or create one if none exist
+    delivery_fee, created = DeliveryFee.objects.get_or_create(
+        pk=1, # Assuming pk=1 or use defaults
+        defaults={'fee': 0.0} # Default fee to 0
+    )
+
+    if request.method == 'POST':
+        form = DeliveryFeeForm(request.POST, instance=delivery_fee)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Delivery fee updated successfully!')
+            # Redirect back to the same page
+            return redirect('administration:delivery_fee')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = DeliveryFeeForm(instance=delivery_fee)
+
+    context = {
+        'form': form,
+        'form_title': 'Update Delivery Fee',
+        'delivery_fee_instance': delivery_fee,
+        'user': request.user,
+        'company': get_company_data() # Pass company data for base template context
+    }
+    return render(request, 'administration/delivery_fee_form.html', context)
