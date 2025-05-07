@@ -70,7 +70,7 @@
                                 <a href="{% url 'products:product_detail' product.slug %}">({{product.review_product.all|length}})</a>
                             </div>
                             <h3 class="details-price">
-                                <span>${{product.price}}</span>
+                                <span>{{product.price}} DT</span>
                             </h3>
                             <p class="details-desc">{{product.descripition}}.</p>
                             <div class="details-list-group">
@@ -220,7 +220,7 @@
                                         <a href="{% url 'products:product_detail' product.slug %}">{{item}}</a>
                                     </h6>
                                     <h6 class="product-price">
-                                        <span>${{item.price}}</span>
+                                        <span>{{item.price}} DT</span>
                                     </h6>
 
                                     <div class="product-action">

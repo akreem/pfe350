@@ -64,9 +64,9 @@
                                                     <td class="table-serial"><h6>{{forloop.counter}}</h6></td>
                                                     <td class="table-image"><img src="{{item.product.image.url}}" alt="product"></td>
                                                     <td class="table-name"><h6>{{item.product}}</h6></td>
-                                                    <td class="table-price"><h6>${{item.product.price}}</h6></td>
+                                                    <td class="table-price"><h6>{{item.product.price}} DT</h6></td>
                                                     <td class="table-brand"><h6>{{item.product.brand}}</h6></td>
-                                                    <td class="table-quantity"><h6>{{item.product.quantity}}</h6></td>
+                                                    <td class="table-quantity"><h6>{{item.quantity}}</h6></td>
                                                     <td class="table-action">
                                                         {% comment %} <a class="view" href="#" title="Quick View" data-bs-toggle="modal" data-bs-target="#product-view"><i class="fas fa-eye"></i></a> {% endcomment %}
                                                         <a class="trash" href="{% url 'orders:remove_from_checkout' item.id %}" title="Remove Wishlist"><i class="icofont-trash"></i></a>
@@ -118,7 +118,7 @@
                                                                         <a href="{% url 'products:product_detail' item.product.slug %}">({{item.product.review_product.all|length}})</a>
                                                                     </div>
                                                                     <h3 class="view-price">
-                                                                        <span>${{item.product.price}}</span>
+                                                                        <span>{{item.product.price}} DT</span>
                                                                     </h3>
                                                                     <p class="view-desc">{{item.product.descripition}}</p>
                                                                     <div class="view-list-group">

@@ -20,12 +20,12 @@
         </div>
         <!--end breadcrumb-->
 
-        <div class="d-flex justify-content-between align-items-center mb-0">
+        <!-- <div class="d-flex justify-content-between align-items-center mb-0">
             <h6 class="mb-0 text-uppercase">All Orders</h6>
             <a href="{% url 'administration:order_create' %}" class="btn btn-primary btn-sm">
                 <i class="bx bx-plus"></i> Create New Order
             </a>
-        </div>
+        </div> -->
         <hr />
 
         <div class="card">
@@ -48,7 +48,7 @@
                                 <td>#{{ order.pk }}</td>
                                 <td>{{ order.user.username|default:"N/A" }}</td>
                                 <td>{{ order.order_time|date:"Y-m-d H:i" }}</td> {# Corrected field name #}
-                                <td>${{ order.total_after_coupon|floatformat:2|default:"N/A" }}</td> {# Display total_after_coupon #}
+                                <td>{{ order.total_after_coupon|floatformat:2|default:"N/A" }} DT</td> {# Display total_after_coupon #}
                                 <td>
                                     {# Use correct status values from the model for badge colors #}
                                     <span class="badge rounded-pill bg-{% if order.status == 'Recieved' %}warning{% elif order.status == 'Processed' %}info{% elif order.status == 'Shipped' %}primary{% elif order.status == 'Delivered' %}success{% else %}secondary{% endif %}">

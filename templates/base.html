@@ -189,7 +189,7 @@
                         <button class="header-widget header-cart" title="Cartlist">
                             <i class="fas fa-shopping-basket"></i>
                             <sup id="header-cart-item-count">{{cart_detail_data|length}}</sup>
-                            <span id="header-cart-total">{% translate "total price" %}<small>TND{{cart_data.cart_total}}</small></span>
+                            <span id="header-cart-total">{% translate "total price" %}<small>{{cart_data.cart_total}} DT</small></span>
                         </button>
                     </div>
                 </div>
@@ -330,7 +330,7 @@
                         <div class="cart-info-group">
                             <div class="cart-info">
                                 <h6><a href="{% url 'products:product_detail' item.product.slug %}">{{item.product}}</a></h6>
-                                <p>Unit Price - TND{{item.product.price}}</p>
+                                <p>Unit Price - {{item.product.price}} DT</p>
                             </div>
                             <div class="cart-action-group">
                                 <div class="product-action">
@@ -347,7 +347,7 @@
 
                                 </div>
                                 {# Added class 'cart-item-total' #}
-                                <h6 class="cart-item-total">TND{{item.total}}</h6>
+                                <h6 class="cart-item-total">{{item.total}} DT</h6>
                             </div>
                         </div>
                     </li>
@@ -357,7 +357,7 @@
                 <a class="cart-checkout-btn" href="{% url 'orders:checkout' %}">
                     <span class="checkout-label">{% translate "Proceed to Checkout" %}</span>
                     {# Added ID 'sidebar-cart-checkout-price' #}
-                    <span class="checkout-price" id="sidebar-cart-checkout-price">TND{{cart_data.cart_total}}</span>
+                    <span class="checkout-price" id="sidebar-cart-checkout-price">{{cart_data.cart_total}} DT</span>
                 </a>
             </div>
         </aside>
@@ -743,19 +743,19 @@
                         success: function(response) {
                             if (response.success) {
                                 // Update individual item total in sidebar
-                                itemTotalElement.text('TND' + response.new_item_total.toFixed(2));
+                                itemTotalElement.text(response.new_item_total.toFixed(2) + 'DT');
 
                                 // Update sidebar total items count
                                 $('#sidebar-cart-item-count').text(`{% translate "total item" %} (${response.new_item_count})`);
 
                                 // Update sidebar checkout button total (using subtotal after coupon)
-                                $('#sidebar-cart-checkout-price').text('TND' + response.new_cart_subtotal.toFixed(2));
+                                $('#sidebar-cart-checkout-price').text(response.new_cart_subtotal.toFixed(2) + 'DT');
 
                                 // Update header cart item count
                                 $('#header-cart-item-count').text(response.new_item_count);
 
                                 // Update header cart total price (using subtotal after coupon)
-                                $('#header-cart-total').html(`{% translate "total price" %}<small>TND${response.new_cart_subtotal.toFixed(2)}</small>`);
+                                $('#header-cart-total').html(`{% translate "total price" %}<small>${response.new_cart_subtotal.toFixed(2)} DT</small>`);
 
                                 // Update original quantity data attribute for next potential error
                                 inputField.data('original-quantity', quantity);

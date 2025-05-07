@@ -91,19 +91,19 @@
                                                 <ul class="orderlist-details">
                                                     <li>
                                                         <h6>Sub Total</h6>
-                                                        <p>${{ sub_total }}</p>
+                                                        <p>{{ sub_total }} DT</p>
                                                     </li>
                                                     <li>
                                                         <h6>Discount</h6>
-                                                        <p>${{ coupon }}</p>
+                                                        <p>{{ coupon }} DT</p>
                                                     </li>
                                                     <li>
                                                         <h6>Delivery Fee</h6>
-                                                        <p>${{ delivery_fee }}</p>
+                                                        <p>{{ delivery_fee }} DT</p>
                                                     </li>
                                                     <li>
                                                         <h6>Total<small>(Incl. VAT)</small></h6>
-                                                        <p>${{ cart_total }}</p>
+                                                        <p>{{ cart_total }} DT</p>
                                                     </li>
                                                 </ul>
                                                 
@@ -172,7 +172,7 @@
                                                                 <td class="table-serial"><h6>{{forloop.counter}}</h6></td>
                                                                 <td class="table-image"><img src="{{item.product.image.url}}" alt="product"></td>
                                                                 <td class="table-name"><h6>{{item.product}}</h6></td>
-                                                                <td class="table-price"><h6>${{item.price}}</td>
+                                                                <td class="table-price"><h6>{{item.price}} DT</td>
                                                                 <td class="table-brand"><h6>{{item.product.brand}}</h6></td>
                                                                 <td class="table-quantity"><h6>{{item.quantity}}</h6></td>
                                                             </tr>

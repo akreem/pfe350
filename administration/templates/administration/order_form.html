@@ -78,7 +78,7 @@
                 </div>
                  <div class="mb-3">
                     <label class="form-label">{% trans "Total After Coupon" %}</label>
-                    <input type="text" class="form-control" value="${{ form.instance.total_after_coupon|floatformat:2|default:'N/A' }}" readonly>
+                    <input type="text" class="form-control" value="{{ form.instance.total_after_coupon|floatformat:2|default:'N/A' }} DT" readonly>
                 </div>
                  {% endif %}
 
@@ -125,7 +125,7 @@
                                </td>
                                <td>
                                    {# Display item total #}
-                                   ${{ detail_form.instance.total|floatformat:2|default:'N/A' }}
+                                   {{ detail_form.instance.total|floatformat:2|default:'N/A' }} DT
                                </td>
                                 {# Delete column removed #}
                             </tr>
@@ -200,7 +200,7 @@
                                </td>
                                <td>
                                     
-                                    ${{ detail_form.instance.total|floatformat:2|default:'N/A' }}
+                                    {{ detail_form.instance.total|floatformat:2|default:'N/A' }} DT
                                </td>
                                 {% if formset.can_delete %}
                                 <td class="text-center align-middle">

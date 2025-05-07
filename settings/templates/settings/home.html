@@ -170,7 +170,7 @@
                                         <a href="{% url 'products:product_detail' product.slug %}">{{ product }}</a>
                                     </h6>
                                     <h6 class="product-price">
-                                        <span>${{ product.price }}</span>
+                                        <span>{{ product.price }} DT</span>
                                     </h6>
                                     
                                     <div class="product-action">
@@ -240,7 +240,7 @@
                                         <a href="{% url 'products:product_detail' product.slug %}">({{product.review_product.all|length}})</a>
                                     </div>
                                     <h6 class="feature-price">
-                                        <span>${{product.price}}</span>
+                                        <span>{{product.price}} DT</span>
                                     </h6>
                                     <p class="feature-desc">{{ product.subtitle|slice:":50"|join:" " }}..</p>
                                     
@@ -313,7 +313,7 @@
                                                 <a href="{% url 'products:product_detail' items.slug %}">{{items}}</a>
                                             </h6>
                                             <h6 class="product-price">
-                                                <span>${{items.price}}</span>
+                                                <span>{{items.price}} DT</span>
                                             </h6>
                                             
                                             <div class="product-action">
