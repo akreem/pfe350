@@ -11,6 +11,25 @@ from django.template.loader import render_to_string
 from .models import Product, Brand, ProductImage, Review
 from .task import send_email
 
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ProductSerializer
+
+class BulkProductUploadAPIView(APIView):
+    permission_classes = [AllowAny]  # 👈 add this
+    def post(self, request, *args, **kwargs):
+        products_data = request.data if isinstance(request.data, list) else [request.data]
+        serializer = ProductSerializer(data=products_data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Products added successfully."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 @cache_page(60 * 1)
 def queryset_debug(request):
@@ -152,3 +171,5 @@ def add_review(request,slug):
     return JsonResponse({'result': html})
 
     # return redirect(f'/products/{product.slug}')
+
+

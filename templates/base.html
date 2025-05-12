@@ -321,37 +321,44 @@
             </div>
             <ul class="cart-list">
                 {% for item in cart_detail_data %}
-                    <li class="cart-item" data-item-id="{{ item.id }}"> {# Added data-item-id #}
-                        <div class="cart-media">
-                            <a href="{% url 'products:product_detail' item.product.slug %}"><img src="{{item.product.image.url}}" alt="product"></a>
+    <li class="cart-item" data-item-id="{{ item.id }}">
+        <div class="cart-media">
+            {% if item.product and item.product.slug %}
+                <a href="{% url 'products:product_detail' item.product.slug %}">
+                    <img src="{{ item.product.image.url }}" alt="product">
+                </a>
+            {% else %}
+                <img src="{{ item.product.image.url }}" alt="product">
+            {% endif %}
+        </div>
+        <div class="cart-info-group">
+            <div class="cart-info">
+                <h6>
+                    {% if item.product and item.product.slug %}
+                        <a href="{% url 'products:product_detail' item.product.slug %}">{{ item.product }}</a>
+                    {% else %}
+                        {{ item.product }}
+                    {% endif %}
+                </h6>
+                <p>Unit Price - {{ item.product.price }} DT</p>
+            </div>
+            <div class="cart-action-group">
+                <div class="product-action">
+                    <input class="action-input cart-item-quantity-input" title="Quantity Number"
+                           type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                    <a href="{% url 'orders:remove_from_cart' item.id %}"
+                       style="display: inline-block; padding: 3px 12px; background-color: #dc3545; color: white; border-radius: 6px; text-decoration: none; transition: background 0.3s;"
+                       onmouseover="this.style.backgroundColor='#c82333'"
+                       onmouseout="this.style.backgroundColor='#dc3545'">
+                        <i class="far fa-trash-alt"></i>
+                    </a>
+                </div>
+                <h6 class="cart-item-total">{{ item.total }} DT</h6>
+            </div>
+        </div>
+    </li>
+{% endfor %}
 
-
-                        </div>
-                        <div class="cart-info-group">
-                            <div class="cart-info">
-                                <h6><a href="{% url 'products:product_detail' item.product.slug %}">{{item.product}}</a></h6>
-                                <p>Unit Price - {{item.product.price}} DT</p>
-                            </div>
-                            <div class="cart-action-group">
-                                <div class="product-action">
-                                    {# Added class 'cart-item-quantity-input' #}
-                                    <input class="action-input cart-item-quantity-input" title="Quantity Number" type="number" name="quantity" value="{{item.quantity}}" min="1">
-                                    {% comment %} <a href="{% url 'orders:remove_from_cart' item.id %}" class="action-input"><i class="far fa-trash-alt"></i></a> {% endcomment %}
-
-                                    <a href="{% url 'orders:remove_from_cart' item.id %}"
-                                        style="display: inline-block; padding: 3px 12px; background-color: #dc3545; color: white; border-radius: 6px; text-decoration: none; transition: background 0.3s;"
-                                        onmouseover="this.style.backgroundColor='#c82333'"
-                                        onmouseout="this.style.backgroundColor='#dc3545'">
-                                        <i class="far fa-trash-alt"></i>
-                                    </a>
-
-                                </div>
-                                {# Added class 'cart-item-total' #}
-                                <h6 class="cart-item-total">{{item.total}} DT</h6>
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
             </ul>
             <div class="cart-footer">
                 <a class="cart-checkout-btn" href="{% url 'orders:checkout' %}">
