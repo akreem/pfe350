@@ -14,6 +14,8 @@ from userauths.forms import ProfileForm # Import ProfileForm
 from django.contrib.auth.forms import UserChangeForm # Keep UserChangeForm - wait, no, remove this if not used elsewhere
 from .forms import AdminUserCreationForm, AdminUserChangeForm, AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm # Import AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm
 from django.urls import reverse_lazy
+from django.core.paginator import Paginator
+
 
 def test(request):
     return HttpResponse('great')
@@ -22,11 +24,13 @@ def test(request):
 def is_staff_user(user):
     return user.is_staff
 
+
+@login_required(login_url="/login")
 def home(request):
     # Check if user is authenticated
-    if not request.user.is_authenticated:
-        # Redirect to login page if not logged in
-        return redirect('userauths:sign-in') # Please confirm or provide the correct login URL name
+    # if not request.user.is_authenticated:
+    #     # Redirect to login page if not logged in
+    #     return redirect('userauths:sign-in') # Please confirm or provide the correct login URL name
 
     # Check if the authenticated user is a superuser
     if not request.user.is_superuser:
@@ -274,8 +278,13 @@ def products_list_view(request):
         return redirect('administration:error_page')
 
     products = Product.objects.all().select_related('brand').prefetch_related('product_image') # Optimize query with prefetch
+    paginator = Paginator(products, 10)  # 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+
     context = {
-        'products': products,
+        'products': page_obj,
         'user': request.user,
         'company': get_company_data()
     }

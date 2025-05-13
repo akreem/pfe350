@@ -74,7 +74,7 @@ class LoginView(TemplateView):
         except User.DoesNotExist:
             messages.error(request, 'User does not exist')
 
-        return redirect('userauths:login')  # Redirect back to login on failure
+        return redirect('userauths:sign-in')  # Redirect back to login on failure
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:

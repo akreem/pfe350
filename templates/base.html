@@ -116,6 +116,9 @@
                     </div>
                     <div class="col-md-7 col-lg-4">
                         <ul class="header-top-list">
+                            {% if user.is_staff%}
+                            <li><a href="{% url 'administration:home' %}">{% translate "Management" %}</a></li>
+                            {% endif %}
                             <li><a href="{% url 'orders:coupon' %}">{% translate "Offers" %}</a></li>
                             <li><a href="{% url 'settings:faq' %}">{% translate "Need Help" %}</a></li>
                             <li><a href="{% url 'settings:contact' %}">{% translate "contact us" %}</a></li>
@@ -442,6 +445,7 @@
                         <a class="nav-link" href="{% url 'orders:order_list' %}">{% translate "Order" %}</a>
                     </li>
 
+                    
                     <li><a class="nav-link" href="{% url 'orders:coupon' %}">{% translate "offers" %}</a></li>
                     <li><a class="nav-link" href="{% url 'settings:faq' %}">{% translate "need help" %}</a></li>
                     <li><a class="nav-link" href="{% url 'settings:contact' %}">{% translate "contact us" %}</a></li>
