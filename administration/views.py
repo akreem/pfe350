@@ -10,7 +10,7 @@ from .forms import ProductForm, OrderForm, OrderCreateForm, OrderDetailCreateInl
 from django.db import transaction # Import transaction
 from django.contrib.auth.decorators import login_required, user_passes_test # Import decorators
 from django.contrib import messages # Add messages import
-from userauths.forms import ProfileForm # Import ProfileForm
+from userauths.forms import ProfileForm, UpdateProfileForm # Import ProfileForm
 from django.contrib.auth.forms import UserChangeForm # Keep UserChangeForm - wait, no, remove this if not used elsewhere
 from .forms import AdminUserCreationForm, AdminUserChangeForm, AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm # Import AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm
 from django.urls import reverse_lazy
@@ -542,41 +542,121 @@ def user_delete_view(request, user_id):
     # Let's assume a generic one exists for now or create one next.
     # Reusing product_confirm_delete for now, but ideally create user_confirm_delete.html
     return render(request, 'administration/confirm_delete.html', context)
+
+
+
+# View for Deleting a profile
+@login_required
+@user_passes_test(is_staff_user) # Ensure only staff can access
+def profile_delete_view(request, profile_id):
+    """
+    View to handle deleting an existing user.
+    Requires authentication and staff status.
+    Displays a confirmation page before deletion.
+    """
+    if not request.user.is_superuser: # Or a more specific permission check
+        messages.error(request, "You do not have permission to delete users.")
+        return redirect('administration:error_page')
+    
+    profile_to_delete = get_object_or_404(Profile, id=profile_id)
+
+    user_to_delete = profile_to_delete.user
+
+    # Prevent users from deleting themselves
+    if request.user == user_to_delete:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('administration:users_list')
+
+    if request.method == 'POST':
+        user_username = user_to_delete.username # Store username for message
+        profile_to_delete.delete()
+        user_to_delete.delete()
+        messages.success(request, f"Profile '{user_username}' deleted successfully.")
+        return redirect('administration:profiles_list')
+
+    context = {
+        'object_to_delete': user_to_delete, # Use a generic name for template reusability
+        'object_type': 'Profile',
+        'cancel_url': reverse_lazy('administration:profiles_list'), # URL to go back to
+        'form_title': f'Confirm Delete Profile: {user_to_delete.username}',
+        'user': request.user,
+        'company': get_company_data()
+    }
+    # We'll need a confirmation template, e.g., 'confirm_delete.html'
+    # Let's assume a generic one exists for now or create one next.
+    # Reusing product_confirm_delete for now, but ideally create user_confirm_delete.html
+    return render(request, 'administration/confirm_delete.html', context)
+
 # Remove duplicated closing brace and return statement from the previous fix
 
 # View for Updating a Profile
-# @login_required
-# @user_passes_test(is_staff_user) # Ensure only staff can access
-# def profile_update_view(request, profile_id):
-#     """
-#     View to handle updating an existing user profile.
-#     Requires authentication and staff status.
-#     """
-#     if not request.user.is_superuser: # Or a more specific permission check
-#         messages.error(request, "You do not have permission to update profiles.")
-#         return redirect('administration:error_page')
+@login_required
+@user_passes_test(is_staff_user)  # Ensure only staff can access
+def profile_update_view(request, profile_id):
+    """
+    View to handle updating an existing user profile.
+    Requires authentication and staff status.
+    """
+    if not request.user.is_superuser:  # Or a more specific permission check
+        messages.error(request, "You do not have permission to update profiles.")
+        return redirect('administration:error_page')
 
-#     profile_to_update = get_object_or_404(Profile, id=profile_id)
+    profile_to_update = get_object_or_404(Profile, id=profile_id)
+    user_to_update = profile_to_update.user  # Get the associated user
+    
+    # Get the user's primary address and phone (if applicable)
+    try:
+        primary_address = Address.objects.filter(user=user_to_update).first()
+        primary_phone = Phone.objects.filter(user=user_to_update).first()
+    except:
+        primary_address = None
+        primary_phone = None
 
-#     if request.method == 'POST':
-#         form = ProfileForm(request.POST, request.FILES, instance=profile_to_update)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, f'Profile for {profile_to_update.user.username} updated successfully!')
-#             return redirect('administration:profiles_list') # Redirect back to profiles list
-#         else:
-#             messages.error(request, 'Please correct the errors below.')
-#     else:
-#         form = ProfileForm(instance=profile_to_update)
+    if request.method == 'POST':
+        form = UpdateProfileForm(
+            request.POST, 
+            request.FILES, 
+            instance=profile_to_update,
+            user=user_to_update  # Pass the user parameter required by the form
+        )
+        if form.is_valid():
+            profile = form.save()
+            
+            # Update selected address and phone relationships if needed
+            selected_address = form.cleaned_data.get('address')
+            selected_phone = form.cleaned_data.get('phone')
+            
+            # Here you could mark the selected address/phone as primary
+            # This depends on your data model - adjust as needed
+            
+            messages.success(request, f'Profile for {user_to_update.username} updated successfully!')
+            return redirect('administration:profiles_list')  # Redirect back to profiles list
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        # Set initial data for the address and phone fields
+        initial_data = {}
+        if primary_address:
+            initial_data['address'] = primary_address.id
+        if primary_phone:
+            initial_data['phone'] = primary_phone.id
+            
+        form = UpdateProfileForm(
+            instance=profile_to_update,
+            user=user_to_update,  # Pass the user parameter required by the form
+            initial=initial_data  # Set initial values for our select fields
+        )
 
-#     context = {
-#         'form': form,
-#         'form_title': f'Update Profile: {profile_to_update.user.username}',
-#         'user': request.user,
-#         'company': get_company_data()
-#     }
-#     # We can reuse the user_form template for now, or create a dedicated profile_form.html
-#     return render(request, 'administration/user_form.html', context)
+    context = {
+        'form': form,
+        'form_title': f'Update Profile: {user_to_update.username}',
+        'user': request.user,
+        'company': get_company_data(),
+        'addresses': Address.objects.filter(user=user_to_update),
+        'phones': Phone.objects.filter(user=user_to_update),
+    }
+    
+    return render(request, 'administration/profile_form.html', context)
 
 @login_required
 @user_passes_test(is_staff_user)

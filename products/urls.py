@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BulkProductUploadAPIView, ProductDetails, ProductList, BrandList, BrandDetails, queryset_debug , product_search , product_filter , product_filter_by_flag , send_emails , add_review 
+from .views import BulkProductUploadAPIView, recommended_products_view, ProductDetails, ProductList, BrandList, BrandDetails, queryset_debug , product_search , product_filter , product_filter_by_flag , send_emails , add_review 
 from .api import  product_list_api , product_detail_api , ProductListAPI , ProductDetailAPI , BrandListAPI , BrandDetailAPI
 
 app_name = 'products'
@@ -19,6 +19,9 @@ urlpatterns = [
     #api function
     path('api/list', product_list_api, name='product_api_list'),
     path('api/list/<int:product_name>', product_detail_api , name='product_detail_api'),
+
+    path('api/recommendations/', recommended_products_view, name='recommendations'),
+
 
     #Api genaric views
     path('api/genariclist', ProductListAPI.as_view()),

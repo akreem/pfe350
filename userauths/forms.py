@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 from userauths.models import User , Profile , Address , Phone , CreditCard
 
+User = get_user_model()
 
 class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'style': 'width: 400px; border: 2px solid #ccc; background-color: #F5F5F5; border-radius: 6px; height: 40px; padding: 10px;', 'id': "", 'placeholder':'First Name'}), max_length=100, required=True)
@@ -95,7 +96,114 @@ class ProfileForm(forms.ModelForm):
 
         return profile
 
+class UpdateProfileForm(forms.ModelForm):
+    first_name = forms.CharField(
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'First Name'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Last Name'
+        })
+    )
+    username = forms.CharField(
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Username'
+        })
+    )
+    
+    # Boolean field for verification status
+    verified = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+        })
+    )
+    
+    # Select fields for existing addresses and phones
+    address = forms.ModelChoiceField(
+        queryset=Address.objects.none(),  # Will be set in __init__
+        required=False,
+        empty_label="-- Select Address --",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'disabled': 'true'
+        })
+    )
+    
+    phone = forms.ModelChoiceField(
+        queryset=Phone.objects.none(),  # Will be set in __init__
+        required=False,
+        empty_label="-- Select Phone --",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'disabled': 'true'
+        })
+    )
 
+    class Meta:
+        model = Profile
+        fields = ['cover_images', 'verified']
+        widgets = {
+            'cover_images': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'style': 'width: 400px; border: 2px solid #ccc; background-color: #F5F5F5; border-radius: 6px; padding: 10px;',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        if user:
+            # Set initial user data
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+            self.fields['username'].initial = user.username
+            
+            # Set querysets for address and phone selection
+            self.fields['address'].queryset = Address.objects.filter(user=user)
+            self.fields['phone'].queryset = Phone.objects.filter(user=user)
+            
+            # If user has profile, set cover image and verified status
+            if hasattr(user, 'profile'):
+                self.instance = user.profile
+                self.fields['verified'].initial = user.profile.verified
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        # Check if username exists but is not the current user's username
+        if User.objects.filter(username=username).exclude(id=self.instance.user.id).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        user = profile.user
+        
+        # Update user info
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.username = self.cleaned_data['username']
+        
+        # Update profile verified status
+        profile.verified = self.cleaned_data['verified']
+
+        if commit:
+            user.save()
+            profile.save()
+
+        return profile
 
 class PhoneUpdateForm(forms.ModelForm):
     phone = forms.CharField(
@@ -106,13 +214,15 @@ class PhoneUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Phone
-        fields = ['type' , 'phone']
+        fields = ['phone']
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
         if not phone.isdigit():
             raise forms.ValidationError("Phone number must be numeric.")
         return phone
+
+
 
 
 

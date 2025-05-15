@@ -19,7 +19,7 @@ def download_image(image_url):
     return f"products/{filename}"
 
 def scrape_products():
-    url = "https://pharma-shop.tn/promotions?page=6"
+    url = "https://pharma-shop.tn/957-compl%C3%A9ments-alimentairess?page=4"
     html = requests.get(url).text
     soup = BeautifulSoup(html, 'html.parser')
     products = []
@@ -35,13 +35,13 @@ def scrape_products():
 
             product = {
                 "name": name,
-                "flag": "New",
+                "flag": "Sale",
                 "price": float(price),
                 "sku": f"SKU{random.randint(1000,9999)}",
                 "subtitle": "Imported promo",
                 "descripition": "Scraped from pharma-shop.tn",
                 "quantity": 15,
-                "brand": 4,  # adjust to your brand ID
+                "brand": 6,  # adjust to your brand ID
                 "tags": ["promotion"],
                 "image": image_path,
                 "product_image": [{"image": image_path}]

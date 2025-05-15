@@ -11,11 +11,15 @@ from django.template.loader import render_to_string
 from .models import Product, Brand, ProductImage, Review
 from .task import send_email
 
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ProductSerializer
+
+
+from .recommendation_engine import get_recommendations_for_user
+from .serializers import ProductListSerializers  # existing serializer
 
 class BulkProductUploadAPIView(APIView):
     permission_classes = [AllowAny]  # 👈 add this
@@ -28,8 +32,21 @@ class BulkProductUploadAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+def recommended_products_view(request):
+    user_id = request.user.id if request.user.is_authenticated else None
+    recommended_products = get_recommendations_for_user(user_id)
+    serializer = ProductListSerializers(recommended_products, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
 
+# class RecommendedProductsAPIView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def get(self, request):
+#         user_id = request.user.id
+#         recommended_products = get_recommendations_for_user(user_id)
+#         serializer = ProductListSerializers(recommended_products, many=True)
+#         return Response(serializer.data)
 
 @cache_page(60 * 1)
 def queryset_debug(request):

@@ -1,5 +1,5 @@
 # start docker with python
-FROM python:3.13.2-slim-bullseye
+FROM python:3.10-slim
 
 
 

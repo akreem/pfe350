@@ -12,7 +12,8 @@ from .views import (
     get_product_price_api, review_delete_view,
     coupons_list_view, coupon_create_view, coupon_update_view, coupon_delete_view, # Added coupon CRUD views
     wishlists_list_view, # Added wishlist list view
-    company_details_view, delivery_fee_view # Added settings views
+    company_details_view, delivery_fee_view, # Added settings view
+    profile_delete_view, profile_update_view
 )
 # Import product CRUD views from the products app
 #from products.views import product_create_view, product_update_view, product_delete_view
@@ -27,7 +28,8 @@ urlpatterns = [
     path('users/<int:user_id>/update/', user_update_view, name='user_update'), # Added user update URL
     path('users/<int:user_id>/delete/', user_delete_view, name='user_delete'), # Added user delete URL
     path('profiles/', profiles_list_view, name='profiles_list'),
-    #path('profiles/<int:profile_id>/update/', profile_update_view, name='profile_update'), # Added profile update URL
+    path('profiles/<int:profile_id>/delete/', profile_delete_view, name='profile_delete'), # Added profile delete URL
+    path('profiles/<int:profile_id>/update/', profile_update_view, name='profile_update'), # Added profile update URL
     path('addresses/', addresses_list_view, name='addresses_list'),
     path('addresses/create/', address_create_view, name='address_create'), # Added address create URL
     path('phones/', phones_list_view, name='phones_list'),

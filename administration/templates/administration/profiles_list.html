@@ -39,6 +39,7 @@
                             <th>Phone</th>
                             <th>Verified</th>
                             <th>Code</th>
+                            <th>Action</th>
                             <!-- <th>Actions</th> -->
                         </tr>
                     </thead>
@@ -65,6 +66,20 @@
                                 {% endif %}
                             </td>
                             <td>{{ profile.code }}</td>
+
+                            <td> {# Actions column content #}
+                                <a href="{% url 'administration:profile_update' profile.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-edit'></i> Edit
+                                </a>
+                                {# Add delete button, hide if user is deleting themselves #}
+                                {% if request.user != profile.user %}
+                                <a href="{% url 'administration:profile_delete' profile.id %}"
+                                   class="btn btn-sm btn-outline-danger ms-1">
+                                    <i class='bx bx-trash'></i> Delete
+                                </a>
+                                {% endif %}
+                            </td>
                             
                         </tr>
                         {% empty %}

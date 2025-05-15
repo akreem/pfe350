@@ -250,8 +250,83 @@
                  PRODUCT RELATED PART END
         =======================================-->
 
+        <!--=====================================
+                AI RECOMMENDATION PART START
+        =======================================-->
+        <section class="inner-section">
+        <div class="container">
+            <div class="row">
+            <div class="col">
+                <div class="section-heading">
+                <h2>recommended for you</h2>
+                </div>
+            </div>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" id="recommended-products">
+            <!-- JS will insert recommended products here -->
+            </div>
+        </div>
+        </section>
+        <!--=====================================
+                AI RECOMMENDATION PART END
+        =======================================-->
+
+
 
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+            <script>
+  const authToken = localStorage.getItem("token");  // or fetch from cookie/session
+
+  fetch("/products/api/recommendations/", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("recommended-products");
+
+    if (data.length === 0) {
+      container.innerHTML = "<p class='text-muted'>No personalized recommendations yet.</p>";
+    } else {
+      data.forEach(product => {
+        const col = document.createElement("div");
+        col.className = "col";
+
+        col.innerHTML = `
+          <div class="product-card">
+            <div class="product-media">
+              <div class="product-label"><label class="label-text sale">${product.flag}</label></div>
+              <a class="product-image" href="/products/${product.slug}/">
+                <img src="${product.image}" style="width: 178.86px; height: 177.46px;" alt="${product.name}">
+              </a>
+            </div>
+            <div class="product-content">
+              <h6 class="product-name">
+                <a href="/products/${product.slug}/">${product.name}</a>
+              </h6>
+              <h6 class="product-price">
+                <span>${product.price} DT</span>
+              </h6>
+              <div class="product-action">
+                <button class="action-minus" title="Quantity Minus"><i class="icofont-minus"></i></button>
+                <input class="action-input" title="Quantity Number" type="text" name="quantity" value="1">
+                <button class="action-plus" title="Quantity Plus"><i class="icofont-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(col);
+      });
+    }
+  })
+  .catch(error => {
+    console.error("Failed to load recommendations:", error);
+  });
+</script>
+
 
 
 
