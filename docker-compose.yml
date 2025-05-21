@@ -29,14 +29,14 @@ services:
     ports:
       - "6379:6379"
 
-  celery:
-    build: .
-    command: celery -A project worker --loglevel=info
-    depends_on:
-      - redis
-      - django-web
-    volumes:
-      - .:/src
+  # celery:
+  #   build: .
+  #   command: celery -A project worker --loglevel=info
+  #   depends_on:
+  #     - redis
+  #     - django-web
+  #   volumes:
+  #     - .:/src
 
 
 volumes:
