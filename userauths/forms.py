@@ -205,6 +205,13 @@ class UpdateProfileForm(forms.ModelForm):
 
         return profile
 
+
+Phone_TYPE = [
+    ('Primary','Primary'),
+    ('Secondary','Secondary'),
+    ('Third','Third')
+]
+
 class PhoneUpdateForm(forms.ModelForm):
     phone = forms.CharField(
         max_length=30,
@@ -214,13 +221,46 @@ class PhoneUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Phone
-        fields = ['phone']
+        fields = ['type', 'phone']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Always set the widget class first
+        self.fields['type'].widget.attrs.update({'class': 'form-control'})
+        
+        if user:
+            # Get existing phone types for this user
+            existing_types = list(Phone.objects.filter(user=user).values_list('type', flat=True))
+            print(f"Existing types for user {user.username}: {existing_types}")  # Debug line
+            
+            # Filter out existing types from the choices
+            available_choices = [choice for choice in Phone_TYPE if choice[0] not in existing_types]
+            print(f"Available choices: {available_choices}")  # Debug line
+            
+            # Update the type field choices
+            self.fields['type'].choices = available_choices
+            
+            # If no choices available, you might want to handle this case
+            if not available_choices:
+                self.fields['type'].choices = [('', 'No phone types available')]
+                self.fields['type'].widget.attrs.update({'disabled': 'disabled'})
+        else:
+            # If no user provided, show all choices
+            self.fields['type'].choices = Phone_TYPE
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
         if not phone.isdigit():
             raise forms.ValidationError("Phone number must be numeric.")
         return phone
+
+    def clean_type(self):
+        type_choice = self.cleaned_data.get('type')
+        if not type_choice:
+            raise forms.ValidationError("Please select a phone type.")
+        return type_choice
 
 
 
