@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test # Im
 from django.contrib import messages # Add messages import
 from userauths.forms import ProfileForm, UpdateProfileForm # Import ProfileForm
 from django.contrib.auth.forms import UserChangeForm # Keep UserChangeForm - wait, no, remove this if not used elsewhere
-from .forms import AdminUserCreationForm, AdminUserChangeForm, AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm # Import AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm
+from .forms import AdminSetPasswordForm, AdminUserCreationForm, AdminUserChangeForm, AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm # Import AddressForm, PhoneForm, CreditCardForm, BrandForm, CouponForm
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 
@@ -503,6 +503,42 @@ def user_update_view(request, user_id):
         'company': get_company_data()
     } # Add missing closing brace
     return render(request, 'administration/user_form.html', context) # Add missing return statement
+
+
+
+@login_required
+@user_passes_test(is_staff_user)
+def user_change_password_view(request, user_id):
+    """
+    View to handle changing password for an existing user.
+    Requires authentication and staff status.
+    """
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to change user passwords.")
+        return redirect('administration:error_page')
+
+    user_to_update = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        form = AdminSetPasswordForm(user_to_update, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Password for {user_to_update.username} changed successfully!')
+            return redirect('administration:users_list')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = AdminSetPasswordForm(user_to_update)
+
+    context = {
+        'form': form,
+        'form_title': f'Change Password for: {user_to_update.username}',
+        'user_to_update': user_to_update,
+        'user': request.user,
+        'company': get_company_data()
+    }
+    return render(request, 'administration/password_change_form.html', context)
+
 
 # View for Deleting a User
 @login_required

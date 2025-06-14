@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    home, permission_denied_view, users_list_view, user_create_view, user_update_view, user_delete_view, # Added user_delete_view
+    home, permission_denied_view, users_list_view, user_create_view, user_change_password_view, user_update_view, user_delete_view, # Added user_delete_view
     profiles_list_view, # Added profile_update_view
     addresses_list_view, address_create_view, # Added address_create_view
     phones_list_view, phone_create_view, # Added phone_create_view
@@ -25,6 +25,7 @@ urlpatterns = [
     path('error/', permission_denied_view, name='error_page'),
     path('users/', users_list_view, name='users_list'),
     path('users/create/', user_create_view, name='user_create'), # Added user create URL
+    path('users/<int:user_id>/passwordupdate/', user_change_password_view, name='user_password_update'), # Added user update URL
     path('users/<int:user_id>/update/', user_update_view, name='user_update'), # Added user update URL
     path('users/<int:user_id>/delete/', user_delete_view, name='user_delete'), # Added user delete URL
     path('profiles/', profiles_list_view, name='profiles_list'),

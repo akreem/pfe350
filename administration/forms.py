@@ -6,6 +6,8 @@ from userauths.models import Address, Phone, CreditCard # Import Address, Phone 
 from orders.models import Order,Coupon # Import Order model
 from settings.models import Company, DeliveryFee # Import Company and DeliveryFee models
 import datetime
+from django.contrib.auth.forms import SetPasswordForm
+
 
 class BrandForm(forms.ModelForm):
     """
@@ -75,6 +77,40 @@ class AdminUserChangeForm(UserChangeForm):
                 else:
                     # Apply standard form-control class to other fields
                     field.widget.attrs['class'] = 'form-control mb-2'
+
+
+
+class AdminSetPasswordForm(SetPasswordForm):
+    """
+    A form for changing user passwords by administrators.
+    Based on Django's SetPasswordForm but with custom styling.
+    """
+    
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(user, *args, **kwargs)
+        
+        # Customize field labels and help text
+        self.fields['new_password1'].label = 'New Password'
+        self.fields['new_password2'].label = 'Confirm New Password'
+        self.fields['new_password1'].help_text = 'Enter a strong password with at least 8 characters.'
+        self.fields['new_password2'].help_text = 'Enter the same password as before, for verification.'
+        
+        # Apply consistent styling
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control mb-2',
+                'placeholder': field.label
+            })
+            
+        # Add specific attributes for password fields
+        self.fields['new_password1'].widget.attrs.update({
+            'autocomplete': 'new-password',
+            'minlength': '8'
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'autocomplete': 'new-password',
+            'minlength': '8'
+        })
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
